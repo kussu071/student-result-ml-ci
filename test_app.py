@@ -13,7 +13,7 @@ class TestPredictionAPI(unittest.TestCase):
 
     def test_home_endpoint(self):
         response = self.client.get("/")
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["status"], "ok")
 
     def test_missing_json(self):
