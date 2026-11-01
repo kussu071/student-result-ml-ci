@@ -118,6 +118,15 @@ jobs:
             -d '{"attendance":90,"internal_marks":85,"assignment_marks":88,"previous_score":80}')
           echo "$response"
           echo "$response" | grep -q '"prediction"'
+      
+      - name: Show Docker container logs
+        if: always()
+        run: docker logs student-result-ml-container || true
+
+      - name: Stop and remove Docker container
+        if: always()
+        run: docker rm -f student-result-ml-container || true
+
 
 
         
