@@ -32,6 +32,13 @@ def health_check():
         "status": "ok",
         "service": "student-result-prediction",
     })
+    
+@app.get("/health")
+def health():
+    return jsonify({
+        "status": "ok",
+        "service": "student-result-prediction",
+    }), 200
 
 
 @app.post("/predict")
