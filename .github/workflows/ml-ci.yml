@@ -34,13 +34,13 @@ jobs:
 
       - name: Train student result model
         run: python train_model.py
-      
+
       - name: Check ML quality gate
         run: python quality_gate.py
 
       - name: Run automated ML and API tests
         run: python -m unittest discover -v
-              
+
       - name: Upload validated ML artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -49,5 +49,44 @@ jobs:
             student_result_model.pkl
             metrics.json
             student_results.csv
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Prepare release candidate
+        run: |
+          mkdir -p release_candidate
+          cp app.py release_candidate/
+          cp student_result_model.pkl release_candidate/
+          cp metrics.json release_candidate/
+          cp requirements.txt release_candidate/
+          cat > release_candidate/Dockerfile <<'EOF'
+          FROM python:3.11-slim
+          WORKDIR /app
+          COPY requirements.txt .
+          RUN pip install --no-cache-dir -r requirements.txt
+          COPY app.py .
+          COPY student_result_model.pkl .
+          COPY metrics.json .
+          EXPOSE 5000
+          CMD ["python", "app.py"]
+          EOF
+          cat > release_candidate/.dockerignore <<'EOF'
+          __pycache__/
+          *.pyc
+          .git/
+          .github/
+          test_*.py
+          student_results.csv
+          release_candidate/
+          EOF
+          echo "Student Result ML Docker release candidate" > release_candidate/DEPLOYMENT.txt
+          echo "Build: docker build -t student-result-ml:1.0 ." >> release_candidate/DEPLOYMENT.txt
+          echo "Run: docker run -d --name student-result-ml-container -p 5000:5000 student-result-ml:1.0" >> release_candidate/DEPLOYMENT.txt
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: student-result-ml-release
+          path: release_candidate/
           if-no-files-found: error
           retention-days: 7
