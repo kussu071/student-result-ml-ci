@@ -38,7 +38,7 @@ jobs:
       - name: Check ML quality gate
         run: python quality_gate.py
 
-      - name: Run automated ML tests
+      - name: Run automated ML and API tests
         run: python -m unittest discover -v
               
       - name: Upload validated ML artifacts
