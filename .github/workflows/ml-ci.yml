@@ -90,3 +90,8 @@ jobs:
           path: release_candidate/
           if-no-files-found: error
           retention-days: 7
+          
+      - name: Build Docker image
+        run: docker build -t student-result-ml:${{ github.sha }} .
+
+          
