@@ -109,6 +109,16 @@ jobs:
           done
           docker logs student-result-ml-container
           exit 1
+      
+      - name: Test prediction endpoint
+        run: |
+          response=$(curl --fail --silent --show-error \
+            -X POST http://localhost:5000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"attendance":90,"internal_marks":85,"assignment_marks":88,"previous_score":80}')
+          echo "$response"
+          echo "$response" | grep -q '"prediction"'
+
 
         
         
